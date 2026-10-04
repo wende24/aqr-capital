@@ -1,0 +1,1301 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  width: 100%;
+  min-height: 100%;
+  background: #020714;
+}
+
+body {
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  color: #ffffff;
+}
+
+button,
+input {
+  font-family: inherit;
+}
+
+/* =================================
+   PAGE
+================================= */
+
+.register-page {
+  position: relative;
+
+  width: 100%;
+
+  min-height: 100vh;
+
+  overflow: hidden;
+
+  background: #020714;
+
+  color: white;
+}
+
+/* =================================
+   BACKGROUND
+================================= */
+
+.register-background {
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 0;
+
+  pointer-events: none;
+
+  background-image:
+    linear-gradient(
+      180deg,
+      rgba(2, 7, 20, 0.60) 0%,
+      rgba(2, 10, 27, 0.44) 35%,
+      rgba(2, 7, 20, 0.62) 70%,
+      rgba(2, 7, 20, 0.94) 100%
+    ),
+    url("/images/kl-city.png");
+
+  background-size: cover;
+
+  background-position:
+    center center;
+
+  background-repeat: no-repeat;
+
+  filter:
+    saturate(1.08)
+    contrast(1.04);
+}
+
+.register-page::before {
+  content: "";
+
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 1;
+
+  pointer-events: none;
+
+  background:
+    linear-gradient(
+      115deg,
+      rgba(1, 8, 24, 0.72) 0%,
+      rgba(1, 15, 39, 0.30) 48%,
+      rgba(0, 7, 20, 0.68) 100%
+    );
+}
+
+.register-page::after {
+  content: "";
+
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 2;
+
+  pointer-events: none;
+
+  background:
+    linear-gradient(
+      125deg,
+      transparent 0%,
+      transparent 34%,
+      rgba(18, 119, 218, 0.08) 34%,
+      rgba(18, 119, 218, 0.08) 43%,
+      transparent 43%,
+      transparent 100%
+    );
+}
+
+/* =================================
+   CONTENT
+================================= */
+
+.register-content {
+  position: relative;
+
+  z-index: 5;
+
+  width: 100%;
+
+  min-height: 100vh;
+
+  padding:
+    24px
+    48px
+    40px;
+}
+
+/* =================================
+   HEADER
+================================= */
+
+.register-header {
+  position: relative;
+
+  z-index: 10;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  width: 100%;
+}
+
+.register-brand {
+  display: flex;
+
+  align-items: center;
+
+  gap: 14px;
+}
+
+.register-brand-mark {
+  position: relative;
+
+  width: 58px;
+  height: 46px;
+
+  flex-shrink: 0;
+}
+
+.register-brand-mark span {
+  position: absolute;
+
+  display: block;
+
+  border-radius: 4px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #00cfff,
+      #0578ff
+    );
+
+  transform:
+    skewX(-26deg);
+
+  box-shadow:
+    0 0 18px
+    rgba(0, 169, 255, 0.25);
+}
+
+.register-brand-mark span:nth-child(1) {
+  left: 2px;
+  bottom: 8px;
+
+  width: 15px;
+  height: 35px;
+}
+
+.register-brand-mark span:nth-child(2) {
+  left: 17px;
+  bottom: 1px;
+
+  width: 15px;
+  height: 44px;
+}
+
+.register-brand-mark span:nth-child(3) {
+  left: 32px;
+  bottom: 10px;
+
+  width: 15px;
+  height: 30px;
+}
+
+.register-brand-copy h1 {
+  margin: 0;
+
+  color: white;
+
+  font-size: 30px;
+
+  font-weight: 750;
+
+  letter-spacing: -0.6px;
+
+  text-shadow:
+    0 2px 16px
+    rgba(0, 0, 0, 0.40);
+}
+
+.register-brand-copy p {
+  margin:
+    2px
+    0
+    0;
+
+  color: #bfd0e7;
+
+  font-size: 12px;
+}
+
+.register-top-controls {
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+}
+
+.register-control-button,
+.register-currency-button {
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  padding:
+    11px
+    18px;
+
+  border:
+    1px solid
+    rgba(93, 151, 225, 0.78);
+
+  border-radius: 999px;
+
+  background:
+    rgba(2, 18, 41, 0.68);
+
+  color: white;
+
+  cursor: pointer;
+
+  font-size: 13px;
+
+  backdrop-filter:
+    blur(10px);
+
+  transition:
+    border-color 0.2s,
+    background 0.2s,
+    transform 0.2s;
+}
+
+.register-control-button:hover,
+.register-currency-button:hover {
+  border-color: #25a9ff;
+
+  background:
+    rgba(8, 38, 75, 0.80);
+
+  transform:
+    translateY(-1px);
+}
+
+.register-currency-button {
+  min-width: 112px;
+
+  justify-content:
+    space-between;
+}
+
+.register-divider {
+  color: #7890ae;
+}
+
+.register-active-control {
+  color: white;
+
+  font-weight: 700;
+}
+
+.register-chevron {
+  color: #a5b8d0;
+
+  font-size: 13px;
+}
+
+.register-flag {
+  font-size: 16px;
+}
+
+/* =================================
+   LAYOUT
+================================= */
+
+.register-layout {
+  position: relative;
+
+  z-index: 5;
+
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1fr)
+    minmax(480px, 560px);
+
+  gap: 58px;
+
+  align-items: center;
+
+  width: 100%;
+
+  max-width: 1500px;
+
+  min-height:
+    calc(
+      100vh - 100px
+    );
+
+  margin:
+    0
+    auto;
+
+  padding:
+    30px
+    0
+    20px;
+}
+
+/* =================================
+   HERO
+================================= */
+
+.register-hero {
+  width: 100%;
+
+  max-width: 850px;
+
+  padding-left: 5px;
+}
+
+.register-trust-badge {
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  padding:
+    9px
+    16px;
+
+  border:
+    1px solid
+    rgba(0, 155, 255, 0.88);
+
+  border-radius: 999px;
+
+  background:
+    rgba(4, 27, 57, 0.70);
+
+  color: #e4f1ff;
+
+  font-size: 13px;
+
+  white-space: nowrap;
+
+  backdrop-filter:
+    blur(10px);
+}
+
+.register-trust-badge span:first-child {
+  color: #ffd327;
+
+  font-size: 16px;
+}
+
+.register-trust-badge i {
+  color: #80a5ce;
+
+  font-style: normal;
+}
+
+.register-eyebrow {
+  margin-top: 28px;
+
+  color: #e5f3ff;
+
+  font-size: 17px;
+
+  font-weight: 600;
+
+  text-shadow:
+    0 2px 12px
+    rgba(0, 0, 0, 0.35);
+}
+
+.register-hero h2 {
+  max-width: 780px;
+
+  margin:
+    12px
+    0
+    14px;
+
+  color: white;
+
+  font-size:
+    clamp(
+      43px,
+      4vw,
+      64px
+    );
+
+  line-height: 1.06;
+
+  letter-spacing: -2.2px;
+
+  text-shadow:
+    0 5px 30px
+    rgba(0, 0, 0, 0.40);
+}
+
+.register-hero h2 span {
+  display: block;
+
+  color: #11bfff;
+
+  text-shadow:
+    0 0 25px
+    rgba(0, 180, 255, 0.20);
+}
+
+.register-hero-description {
+  max-width: 700px;
+
+  margin: 0;
+
+  color: #d7e6f6;
+
+  font-size: 18px;
+
+  line-height: 1.5;
+
+  text-shadow:
+    0 2px 10px
+    rgba(0, 0, 0, 0.32);
+}
+
+/* =================================
+   FEATURES
+================================= */
+
+.register-feature-list {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 18px;
+
+  margin-top: 28px;
+}
+
+.register-feature {
+  display: grid;
+
+  grid-template-columns:
+    40px
+    46px
+    minmax(0, 1fr);
+
+  align-items: center;
+
+  gap: 14px;
+
+  max-width: 720px;
+}
+
+.register-feature-number {
+  color: #a9c4e1;
+
+  font-size: 13px;
+
+  font-weight: 700;
+
+  letter-spacing: 0.8px;
+}
+
+.register-feature-icon {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  width: 46px;
+  height: 46px;
+
+  border:
+    1px solid
+    rgba(32, 150, 255, 0.80);
+
+  border-radius: 50%;
+
+  background:
+    rgba(0, 96, 190, 0.18);
+
+  color: #2bbcff;
+
+  font-size: 20px;
+
+  box-shadow:
+    0 0 20px
+    rgba(0, 132, 255, 0.08);
+}
+
+.register-feature-copy h3 {
+  margin: 0;
+
+  color: #f2f7ff;
+
+  font-size: 16px;
+
+  line-height: 1.25;
+}
+
+.register-feature-copy p {
+  max-width: 590px;
+
+  margin:
+    5px
+    0
+    0;
+
+  color: #b9cce1;
+
+  font-size: 12px;
+
+  line-height: 1.45;
+}
+
+/* =================================
+   SECURITY
+================================= */
+
+.register-security-line {
+  display: flex;
+
+  align-items: center;
+
+  flex-wrap: wrap;
+
+  gap: 10px;
+
+  margin-top: 26px;
+
+  padding-top: 15px;
+
+  border-top:
+    1px solid
+    rgba(117, 154, 196, 0.32);
+
+  color: #aec1d7;
+
+  font-size: 10px;
+}
+
+.register-security-line span:first-child {
+  color: #dbeafa;
+
+  font-size: 14px;
+}
+
+.register-security-line i {
+  color: #5f7896;
+
+  font-style: normal;
+}
+
+/* =================================
+   REGISTER PANEL
+================================= */
+
+.register-panel {
+  width: 100%;
+
+  max-width: 560px;
+
+  margin-left: auto;
+
+  border:
+    1px solid
+    rgba(0, 160, 255, 0.84);
+
+  border-radius: 25px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(9, 35, 70, 0.84),
+      rgba(4, 17, 34, 0.92)
+    );
+
+  box-shadow:
+    inset 0 0 55px
+    rgba(31, 116, 255, 0.08),
+    0 25px 80px
+    rgba(0, 0, 0, 0.40);
+
+  backdrop-filter:
+    blur(18px);
+}
+
+.register-panel-inner {
+  position: relative;
+
+  padding:
+    34px
+    38px
+    30px;
+}
+
+/* =================================
+   PANEL TITLE
+================================= */
+
+.register-panel-title {
+  text-align: center;
+}
+
+.register-panel-title h2 {
+  margin: 0;
+
+  color: white;
+
+  font-size: 34px;
+
+  font-weight: 500;
+
+  letter-spacing: -1px;
+}
+
+.register-panel-title p {
+  max-width: 430px;
+
+  margin:
+    8px
+    auto
+    20px;
+
+  color: #c2d3e6;
+
+  font-size: 13px;
+
+  line-height: 1.5;
+}
+
+/* =================================
+   FORM
+================================= */
+
+.register-form {
+  display: flex;
+
+  flex-direction: column;
+}
+
+.register-form > label {
+  margin-bottom: 7px;
+
+  color: #edf4ff;
+
+  font-size: 12px;
+
+  font-weight: 600;
+}
+
+.register-input-wrapper {
+  position: relative;
+
+  display: flex;
+
+  align-items: center;
+
+  width: 100%;
+
+  margin-bottom: 14px;
+}
+
+.register-input-icon {
+  position: absolute;
+
+  left: 16px;
+
+  z-index: 2;
+
+  color: #a9bdd4;
+
+  font-size: 16px;
+}
+
+.register-input-wrapper input {
+  width: 100%;
+
+  height: 45px;
+
+  padding:
+    0
+    44px
+    0
+    44px;
+
+  border:
+    1px solid
+    rgba(94, 145, 205, 0.64);
+
+  border-radius: 11px;
+
+  outline: none;
+
+  background:
+    rgba(4, 17, 34, 0.78);
+
+  color: white;
+
+  font-size: 12px;
+
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s,
+    background 0.2s;
+}
+
+.register-input-wrapper input::placeholder {
+  color: #7186a1;
+}
+
+.register-input-wrapper input:focus {
+  border-color: #1ca4ff;
+
+  background:
+    rgba(4, 20, 40, 0.88);
+
+  box-shadow:
+    0 0 0 3px
+    rgba(17, 145, 255, 0.10);
+}
+
+.register-password-button {
+  position: absolute;
+
+  right: 9px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  width: 30px;
+  height: 30px;
+
+  border: 0;
+
+  background: transparent;
+
+  color: #a8bfd8;
+
+  cursor: pointer;
+
+  font-size: 15px;
+}
+
+/* =================================
+   TERMS
+================================= */
+
+.register-terms {
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: 9px;
+
+  margin-top: 3px;
+
+  color: #becfe1;
+
+  font-size: 11px;
+
+  line-height: 1.5;
+
+  cursor: pointer;
+}
+
+.register-terms input {
+  position: absolute;
+
+  width: 1px;
+  height: 1px;
+
+  opacity: 0;
+
+  pointer-events: none;
+}
+
+.register-checkbox {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  width: 18px;
+  height: 18px;
+
+  margin-top: 1px;
+
+  border:
+    1px solid
+    #308cff;
+
+  border-radius: 4px;
+
+  background:
+    #1c75ed;
+
+  color: white;
+
+  font-size: 11px;
+
+  font-weight: 800;
+}
+
+.register-terms-text {
+  min-width: 0;
+}
+
+.register-link-button {
+  border: 0;
+
+  padding: 0;
+
+  background: transparent;
+
+  color: #24a8ff;
+
+  cursor: pointer;
+
+  font-size: inherit;
+
+  font-weight: 600;
+}
+
+/* =================================
+   MESSAGE
+================================= */
+
+.register-message {
+  margin:
+    13px
+    0
+    0;
+
+  padding:
+    9px
+    11px;
+
+  border:
+    1px solid
+    rgba(32, 194, 156, 0.35);
+
+  border-radius: 8px;
+
+  background:
+    rgba(0, 183, 148, 0.08);
+
+  color: #8affdc;
+
+  text-align: center;
+
+  font-size: 11px;
+
+  line-height: 1.4;
+}
+
+/* =================================
+   CREATE ACCOUNT
+================================= */
+
+.create-account-button {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 11px;
+
+  width: 100%;
+
+  height: 49px;
+
+  margin-top: 18px;
+
+  border:
+    1px solid
+    rgba(105, 195, 255, 0.40);
+
+  border-radius: 11px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #149cff,
+      #0b68f1
+    );
+
+  color: white;
+
+  cursor: pointer;
+
+  font-size: 14px;
+
+  font-weight: 700;
+
+  box-shadow:
+    0 13px 25px
+    rgba(0, 110, 255, 0.20);
+
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s,
+    filter 0.2s;
+}
+
+.create-account-button:hover:not(:disabled) {
+  filter:
+    brightness(1.08);
+
+  transform:
+    translateY(-1px);
+
+  box-shadow:
+    0 16px 30px
+    rgba(0, 110, 255, 0.28);
+}
+
+.create-account-button:disabled {
+  cursor: wait;
+
+  opacity: 0.7;
+}
+
+.create-account-button span {
+  font-size: 20px;
+}
+
+/* =================================
+   LOGIN LINK
+================================= */
+
+.register-login-row {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  flex-wrap: wrap;
+
+  gap: 6px;
+
+  margin-top: 20px;
+
+  color: #a5b4c8;
+
+  font-size: 11px;
+}
+
+.register-login-button {
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 5px;
+
+  border: 0;
+
+  padding: 0;
+
+  background: transparent;
+
+  color: #26a9ff;
+
+  cursor: pointer;
+
+  font-size: 11px;
+
+  font-weight: 600;
+}
+
+.register-login-button span {
+  font-size: 14px;
+}
+
+/* =================================
+   LARGE DESKTOP
+================================= */
+
+@media (min-width: 1600px) {
+  .register-content {
+    padding:
+      28px
+      58px
+      40px;
+  }
+
+  .register-layout {
+    grid-template-columns:
+      minmax(0, 1.12fr)
+      minmax(500px, 590px);
+
+    gap: 70px;
+  }
+
+  .register-hero h2 {
+    font-size: 66px;
+  }
+
+  .register-panel {
+    max-width: 590px;
+  }
+}
+
+/* =================================
+   LAPTOP
+================================= */
+
+@media (max-width: 1200px) {
+  .register-content {
+    padding:
+      22px
+      30px
+      35px;
+  }
+
+  .register-layout {
+    grid-template-columns:
+      minmax(0, 1fr)
+      minmax(430px, 500px);
+
+    gap: 38px;
+  }
+
+  .register-hero h2 {
+    font-size: 52px;
+  }
+
+  .register-hero-description {
+    font-size: 16px;
+  }
+}
+
+/* =================================
+   TABLET
+================================= */
+
+@media (max-width: 980px) {
+  .register-layout {
+    grid-template-columns: 1fr;
+
+    max-width: 720px;
+
+    margin:
+      0
+      auto;
+
+    padding-bottom: 60px;
+  }
+
+  .register-hero {
+    max-width: 100%;
+
+    padding-left: 0;
+  }
+
+  .register-panel {
+    max-width: 620px;
+
+    margin:
+      0
+      auto;
+  }
+
+  .register-feature-list {
+    gap: 16px;
+  }
+}
+
+/* =================================
+   MOBILE
+================================= */
+
+@media (max-width: 680px) {
+  .register-content {
+    padding:
+      18px
+      16px
+      30px;
+  }
+
+  .register-header {
+    align-items: flex-start;
+
+    gap: 15px;
+  }
+
+  .register-brand-copy h1 {
+    font-size: 23px;
+  }
+
+  .register-brand-copy p {
+    font-size: 10px;
+  }
+
+  .register-brand-mark {
+    transform:
+      scale(0.85);
+
+    transform-origin:
+      left
+      center;
+  }
+
+  .register-top-controls {
+    gap: 6px;
+  }
+
+  .register-control-button,
+  .register-currency-button {
+    padding:
+      9px
+      12px;
+
+    font-size: 11px;
+  }
+
+  .register-layout {
+    padding-top: 24px;
+  }
+
+  .register-eyebrow {
+    font-size: 14px;
+  }
+
+  .register-hero h2 {
+    font-size: 40px;
+
+    letter-spacing: -1.8px;
+  }
+
+  .register-hero-description {
+    font-size: 15px;
+  }
+
+  .register-feature {
+    grid-template-columns:
+      32px
+      42px
+      minmax(0, 1fr);
+
+    gap: 10px;
+  }
+
+  .register-feature-icon {
+    width: 42px;
+    height: 42px;
+  }
+
+  .register-feature-copy h3 {
+    font-size: 14px;
+  }
+
+  .register-feature-copy p {
+    font-size: 11px;
+  }
+
+  .register-panel-inner {
+    padding:
+      28px
+      20px
+      24px;
+  }
+
+  .register-panel-title h2 {
+    font-size: 30px;
+  }
+}
+
+/* =================================
+   SMALL MOBILE
+================================= */
+
+@media (max-width: 480px) {
+  .register-top-controls {
+    display: none;
+  }
+
+  .register-header {
+    display: block;
+  }
+
+  .register-trust-badge {
+    white-space: normal;
+
+    font-size: 10px;
+
+    padding:
+      8px
+      12px;
+  }
+
+  .register-hero h2 {
+    font-size: 36px;
+  }
+
+  .register-feature-list {
+    gap: 14px;
+  }
+
+  .register-security-line {
+    align-items: flex-start;
+
+    gap: 7px;
+  }
+
+  .register-panel-inner {
+    padding:
+      24px
+      17px
+      22px;
+  }
+
+  .register-form > label {
+    font-size: 11px;
+  }
+
+  .register-input-wrapper input {
+    height: 44px;
+
+    font-size: 12px;
+  }
+
+  .register-terms {
+    font-size: 10px;
+  }
+}

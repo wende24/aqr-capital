@@ -1,0 +1,120 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum OrderType {
+  BUY
+  SELL
+}
+
+enum OrderStatus {
+  PENDING
+  FILLED
+  CANCELLED
+}
+
+model User {
+  id         String      @id @default(uuid()) @db.Uuid
+  username   String?     @unique
+  email      String      @unique
+  phone      String?
+  password   String
+  fullName   String
+  avatar     String?
+  createdAt  DateTime    @default(now())
+
+  account    Account?
+  watchlists Watchlist[]
+  holdings   Holding[]
+  orders     Order[]
+}
+
+model Account {
+  id           String   @id @default(uuid()) @db.Uuid
+  userId       String   @unique @db.Uuid
+  accountType  String   @default("cash")
+  cashBalance  Decimal  @default(0) @db.Decimal(20, 2)
+  totalValue   Decimal  @default(0) @db.Decimal(20, 2)
+  createdAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Watchlist {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  symbol    String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, symbol])
+  @@index([symbol])
+}
+
+model Holding {
+  id           String   @id @default(uuid()) @db.Uuid
+  userId       String   @db.Uuid
+  symbol       String
+  quantity     Decimal  @default(0) @db.Decimal(20, 6)
+  avgPrice     Decimal  @default(0) @db.Decimal(20, 6)
+  currentPrice Decimal  @default(0) @db.Decimal(20, 6)
+  marketValue  Decimal  @default(0) @db.Decimal(20, 2)
+  profitLoss   Decimal  @default(0) @db.Decimal(20, 2)
+  createdAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, symbol])
+  @@index([symbol])
+}
+
+model Order {
+  id        String      @id @default(uuid()) @db.Uuid
+  userId    String      @db.Uuid
+  symbol    String
+  type      OrderType
+  quantity  Decimal     @db.Decimal(20, 6)
+  price     Decimal     @db.Decimal(20, 6)
+  status    OrderStatus @default(PENDING)
+  createdAt DateTime    @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([symbol])
+  @@index([createdAt])
+}
+
+model Stock {
+  id         String       @id @default(uuid()) @db.Uuid
+  symbol     String       @unique
+  name       String
+  sector     String?
+  industry   String?
+  marketCap  Decimal?     @db.Decimal(30, 2)
+  createdAt  DateTime     @default(now())
+
+  prices StockPrice[]
+}
+
+model StockPrice {
+  id        String   @id @default(uuid()) @db.Uuid
+  symbol    String
+  date      DateTime
+  open      Decimal? @db.Decimal(20, 6)
+  high      Decimal? @db.Decimal(20, 6)
+  low       Decimal? @db.Decimal(20, 6)
+  close     Decimal? @db.Decimal(20, 6)
+  volume    BigInt?
+
+  stock Stock @relation(fields: [symbol], references: [symbol], onDelete: Cascade)
+
+  @@unique([symbol, date])
+  @@index([symbol])
+  @@index([date])
+}

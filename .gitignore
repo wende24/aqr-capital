@@ -1,0 +1,14 @@
+﻿node_modules/
+dist/
+
+.env
+.env.*
+server/.env
+server/.env.*
+
+!.env.example
+
+.agents/
+.claude/
+.cursor/
+.devin/
