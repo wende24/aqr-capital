@@ -8,32 +8,27 @@ import {
   updateCustomerCapital,
   updateCustomerHolding,
 } from "../controllers/admin-portfolio.controller";
+import {
+  getPendingTraderOrders,
+  fillTraderOrder,
+  cancelTraderOrder,
+} from "../controllers/trader.controller";
 
 const router = Router();
 
 router.use(requireAuth);
 router.use(requireAdmin);
 
+// Customer portfolio management
 router.get("/customers", listCustomers);
+router.get("/customers/:userId/portfolio", getAdminCustomerPortfolio);
+router.put("/customers/:userId/capital", updateCustomerCapital);
+router.put("/customers/:userId/holdings", updateCustomerHolding);
+router.delete("/customers/:userId/holdings/:symbol", removeCustomerHolding);
 
-router.get(
-  "/customers/:userId/portfolio",
-  getAdminCustomerPortfolio,
-);
-
-router.put(
-  "/customers/:userId/capital",
-  updateCustomerCapital,
-);
-
-router.put(
-  "/customers/:userId/holdings",
-  updateCustomerHolding,
-);
-
-router.delete(
-  "/customers/:userId/holdings/:symbol",
-  removeCustomerHolding,
-);
+// Admin order execution
+router.get("/orders/pending", getPendingTraderOrders);
+router.post("/orders/:orderId/fill", fillTraderOrder);
+router.post("/orders/:orderId/cancel", cancelTraderOrder);
 
 export default router;
