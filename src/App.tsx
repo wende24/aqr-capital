@@ -15,6 +15,7 @@ import Register from "./pages/Register";
 
 
 import Home from "./pages/Home";
+import Admin from "./pages/Admin";
 
 const API_BASE_URL =
   window.location.hostname === "localhost" ||
@@ -1649,6 +1650,10 @@ function Dashboard({
 
 
 function App() {
+  if (window.location.pathname === "/admin") {
+    return <Admin />;
+  }
+
   const [page, setPage] = useState<Page>(() => {
     const token = localStorage.getItem("aqr_token");
 

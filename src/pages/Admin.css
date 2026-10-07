@@ -1,0 +1,293 @@
+.admin-page {
+  min-height: 100vh;
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(0, 180, 255, 0.12),
+      transparent 35%
+    ),
+    #050b14;
+  color: #eef5ff;
+  padding: 32px;
+  font-family: Inter, system-ui, sans-serif;
+}
+
+.admin-login-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-login-card {
+  width: 100%;
+  max-width: 440px;
+  padding: 36px;
+  border: 1px solid rgba(90, 180, 255, 0.2);
+  border-radius: 20px;
+  background: rgba(8, 18, 32, 0.94);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45);
+}
+
+.admin-brand {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.admin-brand-mark {
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #00bfff, #2476ff);
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.admin-brand h1,
+.admin-brand span {
+  margin: 0;
+}
+
+.admin-brand h1 {
+  font-size: 20px;
+}
+
+.admin-brand span {
+  display: block;
+  margin-top: 4px;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  color: #7f9abb;
+}
+
+.admin-login-card label {
+  display: block;
+  margin: 16px 0 8px;
+  color: #9db0c8;
+  font-size: 13px;
+}
+
+.admin-login-card input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 13px 14px;
+  border: 1px solid #24364d;
+  border-radius: 10px;
+  background: #091321;
+  color: white;
+  outline: none;
+}
+
+.admin-primary-button,
+.admin-header-actions button,
+.fill-button,
+.cancel-button {
+  cursor: pointer;
+}
+
+.admin-primary-button {
+  width: 100%;
+  margin-top: 24px;
+  padding: 14px;
+  border: 0;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #00bfff, #2476ff);
+  color: white;
+  font-weight: 700;
+}
+
+.admin-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 28px;
+}
+
+.admin-eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: #34c8ff;
+}
+
+.admin-header h1 {
+  margin: 6px 0;
+  font-size: 32px;
+}
+
+.admin-header p {
+  margin: 0;
+  color: #8498b2;
+}
+
+.admin-header-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.admin-header-actions button {
+  padding: 10px 16px;
+  border: 1px solid #28405b;
+  border-radius: 9px;
+  background: #0b1626;
+  color: white;
+}
+
+.admin-header-actions .logout-button {
+  background: #20131a;
+  border-color: #593044;
+}
+
+.admin-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.admin-stat-card {
+  padding: 20px;
+  border: 1px solid #1d3047;
+  border-radius: 14px;
+  background: rgba(8, 18, 32, 0.82);
+}
+
+.admin-stat-card span {
+  display: block;
+  color: #7e92ab;
+  font-size: 12px;
+}
+
+.admin-stat-card strong {
+  display: block;
+  margin-top: 8px;
+  font-size: 24px;
+}
+
+.admin-card {
+  overflow: hidden;
+  border: 1px solid #1d3047;
+  border-radius: 16px;
+  background: rgba(8, 18, 32, 0.84);
+}
+
+.admin-card-header {
+  padding: 22px;
+  border-bottom: 1px solid #192a3f;
+}
+
+.admin-card-header h2 {
+  margin: 0;
+}
+
+.admin-card-header p {
+  margin: 6px 0 0;
+  color: #7e92ab;
+  font-size: 13px;
+}
+
+.admin-table-wrapper {
+  overflow-x: auto;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 1000px;
+}
+
+.admin-table th,
+.admin-table td {
+  padding: 16px;
+  border-bottom: 1px solid #16263a;
+  text-align: left;
+  font-size: 13px;
+}
+
+.admin-table th {
+  color: #7890aa;
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+.admin-table td small {
+  display: block;
+  margin-top: 3px;
+  color: #70849d;
+}
+
+.order-type {
+  font-weight: 800;
+}
+
+.order-type.buy {
+  color: #34dc8c;
+}
+
+.order-type.sell {
+  color: #ff7187;
+}
+
+.action-group {
+  display: flex;
+  gap: 8px;
+}
+
+.fill-button,
+.cancel-button {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid;
+  color: white;
+}
+
+.fill-button {
+  border-color: #1e9f6b;
+  background: #0c3025;
+}
+
+.cancel-button {
+  border-color: #9c3f51;
+  background: #35151d;
+}
+
+.admin-empty {
+  padding: 60px 20px;
+  text-align: center;
+  color: #7389a4;
+}
+
+.admin-message {
+  margin-bottom: 18px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+}
+
+.admin-message.error {
+  background: #38161f;
+  color: #ff9caf;
+}
+
+.admin-message.success {
+  background: #0c3025;
+  color: #71e7b3;
+}
+
+@media (max-width: 800px) {
+  .admin-page {
+    padding: 18px;
+  }
+
+  .admin-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .admin-stats {
+    grid-template-columns: 1fr;
+  }
+}

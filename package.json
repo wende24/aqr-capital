@@ -10,7 +10,8 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "postinstall": "prisma skills sync || exit 0"
+    "postinstall": "prisma skills sync || exit 0",
+    "admin-server": "tsx server/src/admin-server.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.0",
