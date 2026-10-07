@@ -5,18 +5,18 @@ export async function getMyPortfolio(
   req: Request,
   res: Response,
 ) {
-  try {
-    if (!req.userId) {
-      return res.status(401).json({
-        success: false,
-        message: "Authentication required",
-      });
-    }
+  if (!req.userId) {
+    return res.status(401).json({
+      success: false,
+      message: "Authentication required",
+    });
+  }
 
+  try {
     const portfolio =
       await getCustomerPortfolio(req.userId);
 
-    return res.json({
+    return res.status(200).json({
       success: true,
       data: portfolio,
     });
@@ -26,10 +26,24 @@ export async function getMyPortfolio(
       error,
     );
 
+    const message =
+      error instanceof Error
+        ? error.message
+        : "Failed to load portfolio";
+
+    if (
+      message ===
+      "Customer account not found"
+    ) {
+      return res.status(404).json({
+        success: false,
+        message,
+      });
+    }
+
     return res.status(500).json({
       success: false,
-      message:
-        "Failed to load portfolio",
+      message: "Failed to load portfolio",
     });
   }
 }

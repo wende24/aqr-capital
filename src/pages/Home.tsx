@@ -1,4 +1,6 @@
-﻿import "./Home.css";
+﻿import { useEffect, useState } from "react";
+
+import "./Home.css";
 
 type HomeProps = {
   onLogin?: () => void;
@@ -14,16 +16,25 @@ type Market = {
   negative?: boolean;
 };
 
-const markets: Market[] = [
+type MarketApiItem = {
+  symbol: string;
+  name: string;
+  value: string;
+  change: string;
+  tone: "blue" | "purple" | "cyan" | "red";
+  negative?: boolean;
+};
+
+const fallbackMarkets: Market[] = [
   {
-    symbol: "â‚¿",
+    symbol: "₿",
     title: "BTC / MYR",
     value: "RM 298,432.10",
     change: "+2.35%",
     tone: "orange",
   },
   {
-    symbol: "â—†",
+    symbol: "◆",
     title: "ETH / MYR",
     value: "RM 12,845.30",
     change: "+1.28%",
@@ -46,7 +57,115 @@ const markets: Market[] = [
   },
 ];
 
+const API_BASE =
+  window.location.hostname === "localhost" ||
+  window.location.hostname === "127.0.0.1"
+    ? "http://localhost:4000"
+    : "";
+
+function getMarketIcon(symbol: string) {
+  switch (symbol) {
+    case "BTC/MYR":
+      return "₿";
+    case "ETH/MYR":
+      return "◆";
+    case "KLCI":
+      return "MY";
+    case "USD/MYR":
+      return "US";
+    default:
+      return symbol.slice(0, 2);
+  }
+}
+
+function mapMarketTone(
+  symbol: string,
+  apiTone: MarketApiItem["tone"],
+): Market["tone"] {
+  switch (symbol) {
+    case "BTC/MYR":
+      return "orange";
+    case "ETH/MYR":
+      return "purple";
+    case "KLCI":
+      return "blue";
+    case "USD/MYR":
+      return "red";
+    default:
+      return apiTone === "purple"
+        ? "purple"
+        : apiTone === "red"
+          ? "red"
+          : "blue";
+  }
+}
+
+function mapMarkets(
+  items: MarketApiItem[],
+): Market[] {
+  return items.map((item) => ({
+    symbol: getMarketIcon(item.symbol),
+    title: item.symbol,
+    value: item.value,
+    change: item.change,
+    tone: mapMarketTone(
+      item.symbol,
+      item.tone,
+    ),
+    negative:
+      item.negative ??
+      item.change.trim().startsWith("-"),
+  }));
+}
+
 function Home({ onLogin, onRegister }: HomeProps) {
+  const [markets, setMarkets] =
+    useState<Market[]>(fallbackMarkets);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    fetch(`${API_BASE}/api/market/overview`, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+      },
+      signal: controller.signal,
+    })
+      .then(async (response) => {
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+          throw new Error(
+            result.message ||
+              "Unable to load market overview.",
+          );
+        }
+
+        return result.data as MarketApiItem[];
+      })
+      .then((items) => {
+        setMarkets(mapMarkets(items));
+      })
+      .catch((error) => {
+        if (
+          error instanceof DOMException &&
+          error.name === "AbortError"
+        ) {
+          return;
+        }
+
+        console.error(
+          "Failed to load market overview:",
+          error,
+        );
+      });
+
+    return () => {
+      controller.abort();
+    };
+  }, []);
+
   const scrollTo = (id: string) => {
     document.getElementById(id)?.scrollIntoView({
       behavior: "smooth",
@@ -143,9 +262,9 @@ function Home({ onLogin, onRegister }: HomeProps) {
 
         <div className="aqr-header__actions">
           <button type="button" className="aqr-language">
-            <span>ðŸŒ</span>
+            <span>🌐</span>
             BM
-            <span>âŒ„</span>
+            <span>⌄</span>
           </button>
 
           <button
@@ -169,14 +288,14 @@ function Home({ onLogin, onRegister }: HomeProps) {
       <section id="about" className="aqr-hero">
         <div className="aqr-hero__content">
           <div className="aqr-badge">
-            <span>ðŸ‡²ðŸ‡¾</span>
+            <span>🇲🇾</span>
             <span>Platform Pelaburan Global</span>
-            <b>â€¢</b>
+            <b>•</b>
             <span>Dipercayai di Malaysia</span>
           </div>
 
           <p className="aqr-hero__kicker">
-            âœ¦ Start your investment journey
+            ✦ Start your investment journey
           </p>
 
           <h1 className="aqr-hero__title">
@@ -197,7 +316,7 @@ function Home({ onLogin, onRegister }: HomeProps) {
               onClick={onRegister}
             >
               Mulakan Sekarang
-              <span>â†’</span>
+              <span>→</span>
             </button>
 
             <button
@@ -210,15 +329,15 @@ function Home({ onLogin, onRegister }: HomeProps) {
           </div>
 
           <div className="aqr-trust-row">
-            <TrustItem icon="â—‡" text="Selamat & Dipercayai" />
-            <TrustItem icon="â—ˆ" text="Yuran Kompetitif" />
-            <TrustItem icon="âœ¥" text="Sokongan Tempatan" />
+            <TrustItem icon="◇" text="Selamat & Dipercayai" />
+            <TrustItem icon="◈" text="Yuran Kompetitif" />
+            <TrustItem icon="✥" text="Sokongan Tempatan" />
           </div>
         </div>
 
         <div className="aqr-hero__visual">
           <div className="aqr-user-card">
-            <div className="aqr-user-card__icon">â™™</div>
+            <div className="aqr-user-card__icon">♙</div>
             <div>
               <strong>500,000+</strong>
               <span>Pengguna di seluruh dunia</span>
@@ -250,7 +369,7 @@ function Home({ onLogin, onRegister }: HomeProps) {
                   market.negative ? " negative" : ""
                 }`}
               >
-                {market.negative ? "â–¼" : "â–²"} {market.change}
+                {market.negative ? "▼" : "▲"} {market.change}
               </span>
 
               <span className="aqr-sparkline" aria-hidden="true">
@@ -295,7 +414,7 @@ function Home({ onLogin, onRegister }: HomeProps) {
             onClick={() => scrollTo("markets")}
           >
             Terokai Platform
-            <span>â†’</span>
+            <span>→</span>
           </button>
         </div>
 
@@ -356,13 +475,13 @@ function Home({ onLogin, onRegister }: HomeProps) {
 
             <div className="aqr-phone__head">
               <strong>AQR Capital</strong>
-              <span>âŒ•</span>
+              <span>⌕</span>
             </div>
 
             <div className="aqr-phone__portfolio">
               <small>Portfolio</small>
               <strong>RM 10,000.00</strong>
-              <span>â–² +2.35%</span>
+              <span>▲ +2.35%</span>
             </div>
 
             {markets.map((market) => (
@@ -378,11 +497,11 @@ function Home({ onLogin, onRegister }: HomeProps) {
             ))}
 
             <div className="aqr-phone__nav">
-              <span>âŒ‚</span>
-              <span>â–¥</span>
-              <span>ï¼‹</span>
-              <span>â—Œ</span>
-              <span>â—Ž</span>
+              <span>⌂</span>
+              <span>▥</span>
+              <span>＋</span>
+              <span>◌</span>
+              <span>◎</span>
             </div>
           </div>
         </div>
@@ -407,28 +526,28 @@ function Home({ onLogin, onRegister }: HomeProps) {
         <div className="aqr-investment-grid">
           <InvestmentCard
             tone="orange"
-            icon="â‚¿"
+            icon="₿"
             title="Mata Wang Kripto"
             description="Akses kepada Bitcoin, Ethereum dan lebih 100 mata wang kripto."
           />
 
           <InvestmentCard
             tone="blue"
-            icon="â–¥"
+            icon="▥"
             title="Saham Global"
             description="Melabur dalam syarikat terkemuka dunia seperti Apple, Tesla, NVIDIA."
           />
 
           <InvestmentCard
             tone="green"
-            icon="â—‰"
+            icon="◉"
             title="Forex"
             description="Dagang lebih 50 pasangan mata wang dengan spread kompetitif."
           />
 
           <InvestmentCard
             tone="purple"
-            icon="â–¥"
+            icon="▥"
             title="Indeks & Komoditi"
             description="Peluang dalam emas, minyak, indeks global dan banyak lagi."
           />
@@ -448,21 +567,21 @@ function Home({ onLogin, onRegister }: HomeProps) {
           <div className="aqr-step-grid">
             <StepCard
               number="1"
-              icon="â™™"
+              icon="♙"
               title="Daftar Akaun"
               description="Buka akaun dalam beberapa minit dengan proses yang mudah."
             />
 
             <StepCard
               number="2"
-              icon="â–£"
+              icon="▣"
               title="Deposit Dana"
               description="Pilih kaedah pembayaran yang selamat dan mudah di Malaysia."
             />
 
             <StepCard
               number="3"
-              icon="â–¥"
+              icon="▥"
               title="Mula Berdagang"
               description="Akses pasaran global dan mula merebut peluang."
             />
@@ -470,7 +589,7 @@ function Home({ onLogin, onRegister }: HomeProps) {
         </div>
 
         <div className="aqr-security">
-          <div className="aqr-security__icon">â—ˆ</div>
+          <div className="aqr-security__icon">◈</div>
 
           <div>
             <h3>
@@ -508,7 +627,7 @@ function Home({ onLogin, onRegister }: HomeProps) {
           className="aqr-button aqr-button--primary"
         >
           Hubungi Kami
-          <span>â†’</span>
+          <span>→</span>
         </button>
       </section>
 
@@ -534,8 +653,8 @@ function Home({ onLogin, onRegister }: HomeProps) {
 
             <div className="aqr-socials">
               <button type="button">f</button>
-              <button type="button">â—Ž</button>
-              <button type="button">â–¶</button>
+              <button type="button">◎</button>
+              <button type="button">▶</button>
               <button type="button">X</button>
               <button type="button">in</button>
             </div>
@@ -565,10 +684,10 @@ function Home({ onLogin, onRegister }: HomeProps) {
 
           <div className="aqr-footer__column">
             <h4>Hubungi Kami</h4>
-            <span>â—‰ Kuala Lumpur, Malaysia</span>
-            <span>âœ‰ support@aqrcapital.com</span>
-            <span>â˜Ž +60 3-1234 5678</span>
-            <span>â—· Isnin - Jum 9:00 pagi - 6:00 petang</span>
+            <span>◉ Kuala Lumpur, Malaysia</span>
+            <span>✉ support@aqrcapital.com</span>
+            <span>☎ +60 3-1234 5678</span>
+            <span>◷ Isnin - Jum 9:00 pagi - 6:00 petang</span>
           </div>
 
           <div className="aqr-footer__column">
@@ -582,18 +701,18 @@ function Home({ onLogin, onRegister }: HomeProps) {
                 type="email"
                 placeholder="Alamat e-mel anda"
               />
-              <button type="button">â†’</button>
+              <button type="button">→</button>
             </div>
           </div>
         </div>
 
         <div className="aqr-footer__bottom">
           <span>
-            Â© 2024 AQR Capital. Hak Cipta Terpelihara.
+            © 2024 AQR Capital. Hak Cipta Terpelihara.
           </span>
 
           <span>
-            Terma &amp; Syaratã€€|ã€€Dasar Privasiã€€|ã€€Penafian
+            Terma &amp; Syarat　|　Dasar Privasi　|　Penafian
           </span>
         </div>
       </footer>
@@ -629,7 +748,7 @@ function MiniMetric({
     <div className={`mini-metric mini-metric--${tone}`}>
       <small>{title}</small>
       <strong>{value}</strong>
-      <span>â–² +2.35%</span>
+      <span>▲ +2.35%</span>
     </div>
   );
 }
@@ -659,7 +778,7 @@ function InvestmentCard({
 
       <button type="button">
         Ketahui Lebih Lanjut
-        <span>â†’</span>
+        <span>→</span>
       </button>
     </article>
   );
@@ -719,5 +838,3 @@ function FooterColumn({
 }
 
 export default Home;
-
-

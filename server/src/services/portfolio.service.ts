@@ -1,4 +1,5 @@
-import { prisma } from "../config/prisma";
+﻿import { prisma } from "../config/prisma";
+import type { Prisma } from "@prisma/client";
 
 type SetCapitalInput = {
   capital: number;
@@ -11,42 +12,49 @@ type SetHoldingInput = {
   currentPrice: number;
 };
 
+type RecalculateOptions = {
+  syncCashBalance?: boolean;
+};
+
+type DbClient =
+  | typeof prisma
+  | Prisma.TransactionClient;
+
 function roundMoney(value: number) {
-  return Math.round(
-    (value + Number.EPSILON) * 100,
-  ) / 100;
+  return (
+    Math.round(
+      (value + Number.EPSILON) * 100,
+    ) / 100
+  );
 }
 
 function normaliseSymbol(symbol: string) {
   return symbol.trim().toUpperCase();
 }
 
-/**
- * Recalculate all financial values for one customer.
- *
- * Capital:
- *   Amount of money assigned to the customer account.
- *
- * Invested cost:
- *   Sum of quantity × average purchase price.
- *
- * Cash balance:
- *   Capital - invested cost.
- *
- * Investment:
- *   Sum of quantity × current price.
- *
- * Total value:
- *   Cash balance + investment.
- *
- * Earning:
- *   Total value - capital.
- */
+function validateNonNegativeNumber(
+  value: number,
+  fieldName: string,
+) {
+  if (
+    !Number.isFinite(value) ||
+    value < 0
+  ) {
+    throw new Error(
+      `${fieldName} must be a valid non-negative number`,
+    );
+  }
+
+  return value;
+}
+
 export async function recalculateAccount(
   userId: string,
+  db: DbClient = prisma,
+  options: RecalculateOptions = {},
 ) {
   const account =
-    await prisma.account.findUnique({
+    await db.account.findUnique({
       where: {
         userId,
       },
@@ -59,43 +67,60 @@ export async function recalculateAccount(
   }
 
   const holdings =
-    await prisma.holding.findMany({
+    await db.holding.findMany({
       where: {
         userId,
       },
+      orderBy: {
+        symbol: "asc",
+      },
     });
 
-  const capital = Number(account.capital);
+  const capital =
+    validateNonNegativeNumber(
+      Number(account.capital),
+      "capital",
+    );
 
   let investedCost = 0;
   let investment = 0;
 
   for (const holding of holdings) {
-    const quantity = Number(
-      holding.quantity,
-    );
+    const quantity =
+      validateNonNegativeNumber(
+        Number(holding.quantity),
+        "holding quantity",
+      );
 
-    const avgPrice = Number(
-      holding.avgPrice,
-    );
+    const avgPrice =
+      validateNonNegativeNumber(
+        Number(holding.avgPrice),
+        "holding avgPrice",
+      );
 
-    const currentPrice = Number(
-      holding.currentPrice,
-    );
+    const currentPrice =
+      validateNonNegativeNumber(
+        Number(holding.currentPrice),
+        "holding currentPrice",
+      );
 
     const marketValue =
-      quantity * currentPrice;
+      roundMoney(
+        quantity * currentPrice,
+      );
 
     const profitLoss =
-      quantity *
-      (currentPrice - avgPrice);
+      roundMoney(
+        quantity *
+          (currentPrice - avgPrice),
+      );
 
     investedCost +=
       quantity * avgPrice;
 
     investment += marketValue;
 
-    await prisma.holding.update({
+    await db.holding.update({
       where: {
         id: holding.id,
       },
@@ -109,26 +134,43 @@ export async function recalculateAccount(
   const roundedInvestedCost =
     roundMoney(investedCost);
 
-  if (roundedInvestedCost > capital) {
+  if (
+    roundedInvestedCost > capital
+  ) {
     throw new Error(
       `Portfolio cost RM${roundedInvestedCost.toFixed(
         2,
-      )} exceeds capital RM${capital.toFixed(2)}`,
+      )} exceeds capital RM${capital.toFixed(
+        2,
+      )}`,
     );
   }
-
-  const cashBalance = Math.max(
-    0,
-    capital - roundedInvestedCost,
-  );
 
   const roundedInvestment =
     roundMoney(investment);
 
-  const totalValue =
-    cashBalance + roundedInvestment;
+  let cashBalance =
+    validateNonNegativeNumber(
+      Number(account.cashBalance),
+      "cashBalance",
+    );
 
-  return prisma.account.update({
+  if (
+    options.syncCashBalance
+  ) {
+    cashBalance = roundMoney(
+      capital -
+        roundedInvestedCost,
+    );
+  }
+
+  const totalValue =
+    roundMoney(
+      cashBalance +
+        roundedInvestment,
+    );
+
+  return db.account.update({
     where: {
       userId,
     },
@@ -160,62 +202,87 @@ export async function getCustomerPortfolio(
     });
 
   const capital = account
-    ? Number(account.capital)
+    ? validateNonNegativeNumber(
+        Number(account.capital),
+        "capital",
+      )
     : 0;
 
   const cashBalance = account
-    ? Number(account.cashBalance)
+    ? validateNonNegativeNumber(
+        Number(account.cashBalance),
+        "cashBalance",
+      )
     : 0;
 
-  const investment =
-    holdings.reduce(
-      (total, holding) =>
-        total +
-        Number(holding.marketValue),
-      0,
-    );
+  let investment = 0;
 
-  const totalValue =
-    cashBalance + investment;
+  const calculatedHoldings =
+    holdings.map((holding) => {
+      const quantity =
+        validateNonNegativeNumber(
+          Number(holding.quantity),
+          "holding quantity",
+        );
 
-  const earning =
-    totalValue - capital;
+      const avgPrice =
+        validateNonNegativeNumber(
+          Number(holding.avgPrice),
+          "holding avgPrice",
+        );
 
-  return {
-    capital: roundMoney(capital),
-    cashBalance: roundMoney(
-      cashBalance,
-    ),
-    investment: roundMoney(
-      investment,
-    ),
-    totalValue: roundMoney(
-      totalValue,
-    ),
-    earning: roundMoney(
-      earning,
-    ),
-    holdings: holdings.map(
-      (holding) => ({
+      const currentPrice =
+        validateNonNegativeNumber(
+          Number(holding.currentPrice),
+          "holding currentPrice",
+        );
+
+      const marketValue =
+        roundMoney(
+          quantity * currentPrice,
+        );
+
+      const profitLoss =
+        roundMoney(
+          quantity *
+            (currentPrice - avgPrice),
+        );
+
+      investment += marketValue;
+
+      return {
         id: holding.id,
         symbol: holding.symbol,
-        quantity: Number(
-          holding.quantity,
-        ),
-        avgPrice: Number(
-          holding.avgPrice,
-        ),
-        currentPrice: Number(
-          holding.currentPrice,
-        ),
-        marketValue: Number(
-          holding.marketValue,
-        ),
-        profitLoss: Number(
-          holding.profitLoss,
-        ),
-      }),
-    ),
+        quantity,
+        avgPrice,
+        currentPrice,
+        marketValue,
+        profitLoss,
+      };
+    });
+
+  const roundedInvestment =
+    roundMoney(investment);
+
+  const totalValue =
+    roundMoney(
+      cashBalance +
+        roundedInvestment,
+    );
+
+  const earning =
+    roundMoney(
+      totalValue - capital,
+    );
+
+  return {
+    capital,
+    cashBalance,
+    investment: roundedInvestment,
+    totalValue,
+    earning,
+    holdings:
+      calculatedHoldings,
   };
 }
 
@@ -223,29 +290,38 @@ export async function setCustomerCapital(
   userId: string,
   input: SetCapitalInput,
 ) {
-  const capital = Math.max(
-    0,
-    input.capital,
-  );
+  const capital =
+    validateNonNegativeNumber(
+      input.capital,
+      "capital",
+    );
 
-  await prisma.account.upsert({
-    where: {
-      userId,
-    },
-    update: {
-      capital,
-    },
-    create: {
-      userId,
-      accountType: "managed",
-      capital,
-      cashBalance: capital,
-      totalValue: capital,
-    },
-  });
+  return prisma.$transaction(
+    async (tx) => {
+      await tx.account.upsert({
+        where: {
+          userId,
+        },
+        update: {
+          capital,
+        },
+        create: {
+          userId,
+          accountType: "managed",
+          capital,
+          cashBalance: capital,
+          totalValue: capital,
+        },
+      });
 
-  return recalculateAccount(
-    userId,
+      return recalculateAccount(
+        userId,
+        tx,
+        {
+          syncCashBalance: true,
+        },
+      );
+    },
   );
 }
 
@@ -257,140 +333,171 @@ export async function setCustomerHolding(
     input.symbol,
   );
 
-  const quantity = Math.max(
-    0,
-    input.quantity,
-  );
-
-  const avgPrice = Math.max(
-    0,
-    input.avgPrice,
-  );
-
-  const currentPrice = Math.max(
-    0,
-    input.currentPrice,
-  );
-
   if (!symbol) {
     throw new Error(
       "Symbol is required",
     );
   }
 
-  const account =
-    await prisma.account.findUnique({
-      where: {
-        userId,
-      },
-    });
-
-  if (!account) {
-    throw new Error(
-      "Customer account not found",
-    );
-  }
-
-  const existingHoldings =
-    await prisma.holding.findMany({
-      where: {
-        userId,
-      },
-    });
-
-  const existingHolding =
-    existingHoldings.find(
-      (holding) =>
-        holding.symbol ===
-        symbol,
+  const quantity =
+    validateNonNegativeNumber(
+      input.quantity,
+      "quantity",
     );
 
-  let currentInvestedCost = 0;
+  const avgPrice =
+    validateNonNegativeNumber(
+      input.avgPrice,
+      "avgPrice",
+    );
 
-  for (const holding of existingHoldings) {
-    if (
-      existingHolding &&
-      holding.id === existingHolding.id
-    ) {
-      continue;
-    }
+  const currentPrice =
+    validateNonNegativeNumber(
+      input.currentPrice,
+      "currentPrice",
+    );
 
-    currentInvestedCost +=
-      Number(holding.quantity) *
-      Number(holding.avgPrice);
-  }
+  return prisma.$transaction(
+    async (tx) => {
+      const account =
+        await tx.account.findUnique({
+          where: {
+            userId,
+          },
+        });
 
-  const newHoldingCost =
-    quantity * avgPrice;
+      if (!account) {
+        throw new Error(
+          "Customer account not found",
+        );
+      }
 
-  const newTotalInvestedCost =
-    currentInvestedCost +
-    newHoldingCost;
+      const existingHoldings =
+        await tx.holding.findMany({
+          where: {
+            userId,
+          },
+        });
 
-  const capital = Number(
-    account.capital,
+      const existingHolding =
+        existingHoldings.find(
+          (holding) =>
+            holding.symbol ===
+            symbol,
+        );
+
+      let currentInvestedCost = 0;
+
+      for (
+        const holding of
+          existingHoldings
+      ) {
+        if (
+          existingHolding &&
+          holding.id ===
+            existingHolding.id
+        ) {
+          continue;
+        }
+
+        currentInvestedCost +=
+          Number(holding.quantity) *
+          Number(holding.avgPrice);
+      }
+
+      const newHoldingCost =
+        quantity * avgPrice;
+
+      const newTotalInvestedCost =
+        roundMoney(
+          currentInvestedCost +
+            newHoldingCost,
+        );
+
+      const capital =
+        validateNonNegativeNumber(
+          Number(account.capital),
+          "capital",
+        );
+
+      if (
+        newTotalInvestedCost >
+        capital
+      ) {
+        throw new Error(
+          `Portfolio cost RM${newTotalInvestedCost.toFixed(
+            2,
+          )} exceeds capital RM${capital.toFixed(
+            2,
+          )}`,
+        );
+      }
+
+      const marketValue =
+        roundMoney(
+          quantity *
+            currentPrice,
+        );
+
+      const profitLoss =
+        roundMoney(
+          quantity *
+            (currentPrice -
+              avgPrice),
+        );
+
+      await tx.holding.upsert({
+        where: {
+          userId_symbol: {
+            userId,
+            symbol,
+          },
+        },
+        update: {
+          quantity,
+          avgPrice,
+          currentPrice,
+          marketValue,
+          profitLoss,
+        },
+        create: {
+          userId,
+          symbol,
+          quantity,
+          avgPrice,
+          currentPrice,
+          marketValue,
+          profitLoss,
+        },
+      });
+
+      await recalculateAccount(
+        userId,
+        tx,
+        {
+          syncCashBalance: true,
+        },
+      );
+
+      const savedHolding =
+        await tx.holding.findUnique({
+          where: {
+            userId_symbol: {
+              userId,
+              symbol,
+            },
+          },
+        });
+
+      if (!savedHolding) {
+        throw new Error(
+          "Holding could not be saved",
+        );
+      }
+
+      return savedHolding;
+    },
   );
-
-  if (
-    roundMoney(
-      newTotalInvestedCost,
-    ) > capital
-  ) {
-    throw new Error(
-      `Portfolio cost RM${roundMoney(
-        newTotalInvestedCost,
-      ).toFixed(
-        2,
-      )} exceeds capital RM${capital.toFixed(
-        2,
-      )}`,
-    );
-  }
-
-  const marketValue =
-    quantity * currentPrice;
-
-  const profitLoss =
-    quantity *
-    (currentPrice - avgPrice);
-
-  await prisma.holding.upsert({
-    where: {
-      userId_symbol: {
-        userId,
-        symbol,
-      },
-    },
-    update: {
-      quantity,
-      avgPrice,
-      currentPrice,
-      marketValue,
-      profitLoss,
-    },
-    create: {
-      userId,
-      symbol,
-      quantity,
-      avgPrice,
-      currentPrice,
-      marketValue,
-      profitLoss,
-    },
-  });
-
-  await recalculateAccount(
-    userId,
-  );
-
-  return prisma.holding.findUnique({
-    where: {
-      userId_symbol: {
-        userId,
-        symbol,
-      },
-    },
-  });
 }
 
 export async function deleteCustomerHolding(
@@ -400,34 +507,50 @@ export async function deleteCustomerHolding(
   const normalizedSymbol =
     normaliseSymbol(symbol);
 
-  const holding =
-    await prisma.holding.findUnique({
-      where: {
-        userId_symbol: {
-          userId,
-          symbol: normalizedSymbol,
-        },
-      },
-    });
-
-  if (!holding) {
+  if (!normalizedSymbol) {
     throw new Error(
-      "Holding not found",
+      "Symbol is required",
     );
   }
 
-  await prisma.holding.delete({
-    where: {
-      userId_symbol: {
+  return prisma.$transaction(
+    async (tx) => {
+      const holding =
+        await tx.holding.findUnique({
+          where: {
+            userId_symbol: {
+              userId,
+              symbol:
+                normalizedSymbol,
+            },
+          },
+        });
+
+      if (!holding) {
+        throw new Error(
+          "Holding not found",
+        );
+      }
+
+      await tx.holding.delete({
+        where: {
+          userId_symbol: {
+            userId,
+            symbol:
+              normalizedSymbol,
+          },
+        },
+      });
+
+      await recalculateAccount(
         userId,
-        symbol: normalizedSymbol,
-      },
+        tx,
+        {
+          syncCashBalance: true,
+        },
+      );
+
+      return true;
     },
-  });
-
-  await recalculateAccount(
-    userId,
   );
-
-  return true;
 }

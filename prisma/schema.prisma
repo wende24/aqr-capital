@@ -8,6 +8,7 @@ datasource db {
 
 enum UserRole {
   CUSTOMER
+  TRADER
   ADMIN
 }
 
@@ -23,15 +24,15 @@ enum OrderStatus {
 }
 
 model User {
-  id         String      @id @default(uuid()) @db.Uuid
-  username   String?     @unique
-  email      String      @unique
-  phone      String?
-  password   String
-  fullName   String
-  avatar     String?
-  role       UserRole    @default(CUSTOMER)
-  createdAt  DateTime    @default(now())
+  id        String   @id @default(uuid()) @db.Uuid
+  username  String?  @unique
+  email     String   @unique
+  phone     String?
+  password  String
+  fullName  String
+  avatar    String?
+  role      UserRole @default(CUSTOMER)
+  createdAt DateTime @default(now())
 
   account    Account?
   watchlists Watchlist[]
@@ -40,13 +41,13 @@ model User {
 }
 
 model Account {
-  id           String   @id @default(uuid()) @db.Uuid
-  userId       String   @unique @db.Uuid
-  accountType  String   @default("managed")
-  capital      Decimal  @default(0) @db.Decimal(20, 2)
-  cashBalance  Decimal  @default(0) @db.Decimal(20, 2)
-  totalValue   Decimal  @default(0) @db.Decimal(20, 2)
-  createdAt    DateTime @default(now())
+  id          String   @id @default(uuid()) @db.Uuid
+  userId      String   @unique @db.Uuid
+  accountType String   @default("managed")
+  capital     Decimal  @default(0) @db.Decimal(20, 2)
+  cashBalance Decimal  @default(0) @db.Decimal(20, 2)
+  totalValue  Decimal  @default(0) @db.Decimal(20, 2)
+  createdAt   DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
@@ -99,26 +100,26 @@ model Order {
 }
 
 model Stock {
-  id         String       @id @default(uuid()) @db.Uuid
-  symbol     String       @unique
-  name       String
-  sector     String?
-  industry   String?
-  marketCap  Decimal?     @db.Decimal(30, 2)
-  createdAt  DateTime     @default(now())
+  id        String   @id @default(uuid()) @db.Uuid
+  symbol    String   @unique
+  name      String
+  sector    String?
+  industry  String?
+  marketCap Decimal? @db.Decimal(30, 2)
+  createdAt DateTime @default(now())
 
   prices StockPrice[]
 }
 
 model StockPrice {
-  id        String   @id @default(uuid()) @db.Uuid
-  symbol    String
-  date      DateTime
-  open      Decimal? @db.Decimal(20, 6)
-  high      Decimal? @db.Decimal(20, 6)
-  low       Decimal? @db.Decimal(20, 6)
-  close     Decimal? @db.Decimal(20, 6)
-  volume    BigInt?
+  id     String   @id @default(uuid()) @db.Uuid
+  symbol String
+  date   DateTime
+  open   Decimal? @db.Decimal(20, 6)
+  high   Decimal? @db.Decimal(20, 6)
+  low    Decimal? @db.Decimal(20, 6)
+  close  Decimal? @db.Decimal(20, 6)
+  volume BigInt?
 
   stock Stock @relation(fields: [symbol], references: [symbol], onDelete: Cascade)
 
